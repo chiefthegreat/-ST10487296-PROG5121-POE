@@ -1,0 +1,55 @@
+name: Java Tests
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+      
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        
+    - name: Download dependencies
+      run: |
+        wget -O gson-2.10.1.jar https://repo1.maven.org/maven2/com/google/code/gson/gson/2.10.1/gson-2.10.1.jar
+        
+    - name: Compile all Java files
+      run: |
+        javac -cp ".:gson-2.10.1.jar" *.java
+        echo "Compilation completed"
+        
+    - name: Run basic test
+      run: |
+        # Create a simple test to verify core functionality
+        cat > SimpleTest.java << 'EOF'
+        public class SimpleTest {
+            public static void main(String[] args) {
+                try {
+                    // Test basic compilation and instantiation
+                    chatapp.Login login = new chatapp.Login();
+                    chatapp.Message message = new chatapp.Message("0123456789", "Test");
+                    chatapp.MessageManager manager = new chatapp.MessageManager();
+                    
+                    System.out.println(" All classes instantiated successfully");
+                    System.out.println(" Basic functionality test PASSED");
+                } catch (Exception e) {
+                    System.out.println(" Test failed: " + e.getMessage());
+                    e.printStackTrace();
+                    System.exit(1);
+                }
+            }
+        }
+        EOF
+        javac -cp ".:gson-2.10.1.jar" SimpleTest.java
+        java -cp ".:gson-2.10.1.jar" SimpleTest
